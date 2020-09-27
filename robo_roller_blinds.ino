@@ -9,6 +9,8 @@ void setup(void) {
     hardware::setup_driver();
     memory::setup_eeprom();
     web::setup_server();
+
+    Serial.println("Setup is finished. Entering loop...");
 }
 
 void loop(void) {
