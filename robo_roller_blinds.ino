@@ -1,11 +1,12 @@
 #include "hardware.hpp"
 #include "memory.h"
+#include "network.h"
 #include "web.h"
 
 void setup(void) {
     Serial.begin(115200);
 
-    hardware::setup_wifi();
+    network::setup_wifi();
     hardware::setup_driver();
     memory::setup_eeprom();
     web::setup_server();
