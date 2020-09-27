@@ -1,10 +1,12 @@
 #ifndef DATA_H
 #define DATA_H
 
-int Pin1 = D1; // IN1 is connected
-int Pin2 = D2; // IN2 is connected
-int Pin3 = D3; // IN3 is connected
-int Pin4 = D4; // IN4 is connected
+struct StepperDriverPins {
+    int pin_1 = D1; // IN1 is connected
+    int pin_2 = D2; // IN2 is connected
+    int pin_3 = D3; // IN3 is connected
+    int pin_4 = D4; // IN4 is connected
+} stepper_driver_pins;
 
 int pole1[] = {0, 0, 0, 0, 0, 1, 1, 1, 0}; // pole1, 8 step values
 int pole2[] = {0, 0, 0, 1, 1, 1, 0, 0, 0}; // pole2, 8 step values

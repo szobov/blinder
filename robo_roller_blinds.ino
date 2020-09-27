@@ -1,4 +1,5 @@
 #include "data.h"
+#include "memory.h"
 #include "secrets.h"
 #include "web.h"
 
@@ -9,11 +10,12 @@ const char* ssid = STASSID;
 const char* password = STAPSK;
 
 void setup(void) {
-    pinMode(Pin1, OUTPUT); // define pin for ULN2003 in1
-    pinMode(Pin2, OUTPUT); // define pin for ULN2003 in2
-    pinMode(Pin3, OUTPUT); // define pin for ULN2003 in3
-    pinMode(Pin4, OUTPUT); // define pin for ULN2003 in4
+    pinMode(stepper_driver_pins.pin_1, OUTPUT); // define pin for ULN2003 in1
+    pinMode(stepper_driver_pins.pin_2, OUTPUT); // define pin for ULN2003 in2
+    pinMode(stepper_driver_pins.pin_3, OUTPUT); // define pin for ULN2003 in3
+    pinMode(stepper_driver_pins.pin_4, OUTPUT); // define pin for ULN2003 in4
 
+    setup_eeprom();
     Serial.begin(115200); // initialize the serial monitor
 
     WiFi.mode(WIFI_STA);
@@ -74,8 +76,8 @@ void motorControl() {
 } // motorControl end
 
 void driveStepper(int c) {
-    digitalWrite(Pin1, pole1[c]);
-    digitalWrite(Pin2, pole2[c]);
-    digitalWrite(Pin3, pole3[c]);
-    digitalWrite(Pin4, pole4[c]);
+    digitalWrite(stepper_driver_pins.pin_1, pole1[c]);
+    digitalWrite(stepper_driver_pins.pin_2, pole2[c]);
+    digitalWrite(stepper_driver_pins.pin_3, pole3[c]);
+    digitalWrite(stepper_driver_pins.pin_4, pole4[c]);
 } // driveStepper end here
