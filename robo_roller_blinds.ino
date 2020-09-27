@@ -1,4 +1,3 @@
-#include "data.h"
 #include "hardware.hpp"
 #include "memory.h"
 #include "web.h"
@@ -6,14 +5,14 @@
 void setup(void) {
     Serial.begin(115200);
 
-    setup_wifi();
-    setup_driver();
-    setup_eeprom();
-    setup_server();
+    hardware::setup_wifi();
+    hardware::setup_driver();
+    memory::setup_eeprom();
+    web::setup_server();
 }
 
 void loop(void) {
-    server_loop();
-    driver_loop();
+    web::server_loop();
+    hardware::driver_loop();
     delay(1);
 }

@@ -1,14 +1,30 @@
-#ifndef DRIVER_H
-#define DRIVER_H
-
-#include "data.h"
-#include "secrets.h"
+#ifndef PRIVATE_DRIVER_H
+#define PRIVATE_DRIVER_H
 
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 
+#include "secrets.h"
+
+namespace hardware {
+
 const char* ssid = STASSID;
 const char* password = STAPSK;
+
+struct StepperDriverPins {
+    int pin_1 = D1; // IN1 is connected
+    int pin_2 = D2; // IN2 is connected
+    int pin_3 = D3; // IN3 is connected
+    int pin_4 = D4; // IN4 is connected
+} stepper_driver_pins;
+
+int pole1[] = {0, 0, 0, 0, 0, 1, 1, 1, 0}; // pole1, 8 step values
+int pole2[] = {0, 0, 0, 1, 1, 1, 0, 0, 0}; // pole2, 8 step values
+int pole3[] = {0, 1, 1, 1, 0, 0, 0, 0, 0}; // pole3, 8 step values
+int pole4[] = {1, 1, 0, 0, 0, 0, 0, 1, 0}; // pole4, 8 step values
+
+int poleStep = 0;
+int dirStatus = 3; // stores direction status 3= stop (do not change)
 
 void setup_driver() {
     pinMode(stepper_driver_pins.pin_1, OUTPUT); // define pin for ULN2003 in1
@@ -72,4 +88,5 @@ void motorControl(const String arg1, const String arg2) {
     }
 }
 
-#endif /* DRIVER_H */
+} // namespace hardware
+#endif /* PRIVATE_DRIVER_H */

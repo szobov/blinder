@@ -1,12 +1,17 @@
 #ifndef WEB_H
 #define WEB_H
 
-#include "data.h"
 #include "hardware.hpp"
 
 #include <ESP8266WebServer.h>
 
+namespace web {
+
 ESP8266WebServer server(80);
+
+String buttonTitle1[] = {"CCW", "CW"}; // Watch Video for details (on Udemy)
+String buttonTitle2[] = {"CCW", "CW"};
+String argId[] = {"ccw", "cw"};
 
 void handleRoot() {
     // Robojax.com ESP32 Relay Motor Control
@@ -14,7 +19,7 @@ void handleRoot() {
                   "<html>"
                   "<head>"
 
-                  "<title>Robojax 28BYJ-48 Motor Control</title>"
+                  "<title>Motor Control</title>"
 
                   "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
 
@@ -52,14 +57,14 @@ void handleRoot() {
             "<h1>Robojax 28BYJ-48 Stepper Motor Control </h1>"
             ";";
 
-    if (dirStatus == 2) {
+    if (hardware::dirStatus == 2) {
         HTML += "<h2><span style=\"background-color: #FFFF00\">Motor Running in CW</span></h2>";
-    } else if (dirStatus == 1) {
+    } else if (hardware::dirStatus == 1) {
         HTML += "<h2><span style=\"background-color: #FFFF00\">Motor Running in CCW</span></h2>";
     } else {
         HTML += "<h2><span style=\"background-color: #FFFF00\">Motor OFF</span></h2>";
     }
-    if (dirStatus == 1) {
+    if (hardware::dirStatus == 1) {
         HTML += "<div class=\"btn\"><a class=\"angleButton\" style=\"background-color:#f56464\"  "
                 "href=\"/motor?";
         HTML += argId[0];
@@ -73,7 +78,7 @@ void handleRoot() {
         HTML += buttonTitle2[0]; // motor OFF title
     }
     HTML += "</a>	</div>";
-    if (dirStatus == 2) {
+    if (hardware::dirStatus == 2) {
         HTML += "	<div class=\"btn\">		<a class=\"angleButton\" "
                 "style=\"background-color:#f56464\"  href=\"/motor?";
         HTML += argId[1];
@@ -109,7 +114,7 @@ void handleNotFound() {
 }
 
 void handler_driver_control() {
-    motorControl(server.arg(argId[0]), server.arg(argId[1]));
+    hardware::motorControl(server.arg(argId[0]), server.arg(argId[1]));
     handleRoot();
 }
 
@@ -125,4 +130,5 @@ void server_loop() {
     server.handleClient();
 }
 
+} // namespace web
 #endif /* WEB_H */

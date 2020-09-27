@@ -1,7 +1,9 @@
-#ifndef MEMORY_H
-#define MEMORY_H
+#ifndef PRIVAYE_MEMORY_H
+#define PRIVAYE_MEMORY_H
 
 #include <EEPROM.h>
+
+namespace memory {
 
 struct __attribute__((packed)) TestStruct {
     char test_1;
@@ -34,4 +36,5 @@ void get_data_from_eeprom(T& t) {
     EEPROM.get(0, t);
 }
 
-#endif /* MEMORY_H */
+} // namespace memory
+#endif /* PRIVAYE_MEMORY_H */
