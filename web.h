@@ -2,6 +2,7 @@
 #define WEB_H
 
 #include "data.h"
+#include "hardware.hpp"
 
 #include <ESP8266WebServer.h>
 
@@ -105,6 +106,23 @@ void handleNotFound() {
     }
 
     server.send(404, "text/plain", message);
+}
+
+void handler_driver_control() {
+    motorControl(server.arg(argId[0]), server.arg(argId[1]));
+    handleRoot();
+}
+
+void setup_server() {
+    server.on("/", handleRoot);
+    server.on("/motor", HTTP_GET, handler_driver_control);
+    server.onNotFound(handleNotFound);
+    server.begin();
+    Serial.println("HTTP server started");
+}
+
+void server_loop() {
+    server.handleClient();
 }
 
 #endif /* WEB_H */
