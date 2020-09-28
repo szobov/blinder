@@ -42,6 +42,12 @@ String INDEX_HTML = R"(<!DOCTYPE html>
    </style>
 </head>
 <body>
+<script>
+setTimeout(function() {
+  window.location.href = "/";
+}, 5000);
+</script>
+
 <h1>Motor Control</h1>
 )";
 

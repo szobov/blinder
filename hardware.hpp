@@ -1,6 +1,8 @@
 #ifndef PRIVATE_DRIVER_H
 #define PRIVATE_DRIVER_H
 
+#include <Arduino.h>
+
 namespace hardware {
 
 struct StepperDriverPins {
@@ -9,6 +11,11 @@ struct StepperDriverPins {
     int pin_3 = D3; // IN3 is connected
     int pin_4 = D4; // IN4 is connected
 } stepper_driver_pins;
+
+int REED_SWITCH_PIN = D6;
+enum class ReedState { CLOSED, OPEN } reed_state;
+int reed_hystersis_counter = 0;
+const int REED_HYSTERESIS_STEPS = 1000;
 
 int pole1[] = {0, 0, 0, 0, 0, 1, 1, 1, 0}; // pole1, 8 step values
 int pole2[] = {0, 0, 0, 1, 1, 1, 0, 0, 0}; // pole2, 8 step values
@@ -26,6 +33,38 @@ void setup_driver() {
     pinMode(stepper_driver_pins.pin_2, OUTPUT); // define pin for ULN2003 in2
     pinMode(stepper_driver_pins.pin_3, OUTPUT); // define pin for ULN2003 in3
     pinMode(stepper_driver_pins.pin_4, OUTPUT); // define pin for ULN2003 in4
+}
+
+void setup_reed() {
+    pinMode(REED_SWITCH_PIN, INPUT_PULLUP);
+    reed_hystersis_counter = 0;
+}
+
+bool is_reed_in_hysteresis() {
+    if (reed_hystersis_counter > 0) {
+        reed_hystersis_counter--;
+        return true;
+    };
+    return false;
+}
+
+void reed_loop() {
+    if (is_reed_in_hysteresis()) {
+        return;
+    }
+    auto current_state = digitalRead(REED_SWITCH_PIN);
+    if ((current_state == LOW) && (reed_state != ReedState::OPEN)) {
+        reed_state = ReedState::OPEN;
+        reed_hystersis_counter = REED_HYSTERESIS_STEPS;
+        Serial.print("Reed is open now");
+        Serial.println();
+    };
+    if ((current_state == HIGH) && (reed_state != ReedState::CLOSED)) {
+        reed_state = ReedState::CLOSED;
+        reed_hystersis_counter = REED_HYSTERESIS_STEPS;
+        Serial.print("Reed is closed now");
+        Serial.println();
+    };
 }
 
 void drive_stepper(int c) {
