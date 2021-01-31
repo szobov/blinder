@@ -20,8 +20,5 @@ void loop(void) {
     hardware::reed_loop();
     web::server_loop();
     hardware::driver_loop();
-
     blinder::blinder_loop();
-
-    delay(1);
 }

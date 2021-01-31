@@ -5,8 +5,6 @@
 
 namespace blinder {
 
-int STEPS_TO_SIDE = 15000;
-
 int current_step_counter = 0;
 
 const auto ROTATION_DOWN = hardware::RotationDirection::CCW;
@@ -39,8 +37,7 @@ void go_down() {
     if (state != State::IS_UP) {
         Serial.println("Can't go down if we're not in up position");
     };
-    hardware::dir_status = ROTATION_DOWN;
-    current_step_counter = 0;
+    hardware::drive_go_down();
     state = State::IN_PROGRESS_DOWN;
 };
 
@@ -49,13 +46,15 @@ void go_up() {
     if (state != State::IS_DOWN) {
         Serial.println("Can't go up if we're not in down position");
     }
-    hardware::dir_status = ROTATION_UP;
-    current_step_counter = 0;
+    hardware::drive_go_up();
     state = State::IN_PROGRESS_UP;
 }
 
 void emergency_stop() {
-    hardware::dir_status = hardware::RotationDirection::OFF;
+    Serial.println("Cover steps before finish: ");
+    Serial.print(hardware::STEPS_TO_SIDE - std::abs(hardware::stepper.distanceToGo()));
+    Serial.println("");
+    hardware::drive_stop();
     state = State::IS_DOWN;
 }
 
@@ -70,28 +69,17 @@ void blinder_loop() {
     }
 
     if (state == State::IN_PROGRESS_DOWN) {
-        if (current_step_counter < STEPS_TO_SIDE) {
-            Serial.println("Current step counter: ");
-            Serial.print(current_step_counter);
-            Serial.println("");
-            current_step_counter++;
-        } else {
+        if (hardware::stepper.distanceToGo() == 0) {
             state = State::IS_DOWN;
-            hardware::dir_status = hardware::RotationDirection::OFF;
             Serial.println("Reach down position");
         }
     };
 
     if (state == State::IN_PROGRESS_UP) {
-        if ((current_step_counter < STEPS_TO_SIDE) &&
-            (hardware::reed_state == hardware::ReedState::CLOSED)) {
-            Serial.println("Current step counter: ");
-            Serial.print(current_step_counter);
-            Serial.println("");
-            current_step_counter++;
+        if (hardware::reed_state == hardware::ReedState::CLOSED) {
         } else {
             state = State::IS_UP;
-            hardware::dir_status = hardware::RotationDirection::OFF;
+            hardware::drive_stop();
             Serial.println("Reach up position");
         }
     };
@@ -101,7 +89,7 @@ void set_steps_to_side(int steps) {
     Serial.println("Set steps to side: ");
     Serial.print(steps);
     Serial.println(" number of steps");
-    STEPS_TO_SIDE = steps;
+    hardware::STEPS_TO_SIDE = steps;
 }
 
 } // namespace blinder

@@ -1,9 +1,15 @@
 #ifndef PRIVATE_DRIVER_H
 #define PRIVATE_DRIVER_H
 
+#include <AccelStepper.h>
 #include <Arduino.h>
 
 namespace hardware {
+
+#define HALFSTEP 8
+
+int STEPS_TO_SIDE = 150000;
+
 
 struct StepperDriverPins {
     int pin_1 = D1; // IN1 is connected
@@ -12,15 +18,13 @@ struct StepperDriverPins {
     int pin_4 = D4; // IN4 is connected
 } stepper_driver_pins;
 
+AccelStepper stepper(HALFSTEP, stepper_driver_pins.pin_1, stepper_driver_pins.pin_3, stepper_driver_pins.pin_2, stepper_driver_pins.pin_4);
+
+
 int REED_SWITCH_PIN = D6;
 enum class ReedState { CLOSED, OPEN } reed_state;
 int reed_hystersis_counter = 0;
 const int REED_HYSTERESIS_STEPS = 1000;
-
-int pole1[] = {0, 0, 0, 0, 0, 1, 1, 1, 0}; // pole1, 8 step values
-int pole2[] = {0, 0, 0, 1, 1, 1, 0, 0, 0}; // pole2, 8 step values
-int pole3[] = {0, 1, 1, 1, 0, 0, 0, 0, 0}; // pole3, 8 step values
-int pole4[] = {1, 1, 0, 0, 0, 0, 0, 1, 0}; // pole4, 8 step values
 
 int pole_step = 0;
 
@@ -28,11 +32,8 @@ enum class RotationDirection { CCW = 1, CW, OFF } dir_status;
 
 void setup_driver() {
     dir_status = RotationDirection::OFF;
-
-    pinMode(stepper_driver_pins.pin_1, OUTPUT); // define pin for ULN2003 in1
-    pinMode(stepper_driver_pins.pin_2, OUTPUT); // define pin for ULN2003 in2
-    pinMode(stepper_driver_pins.pin_3, OUTPUT); // define pin for ULN2003 in3
-    pinMode(stepper_driver_pins.pin_4, OUTPUT); // define pin for ULN2003 in4
+    stepper.setMaxSpeed(1000);
+    stepper.setSpeed(1000);
 }
 
 void setup_reed() {
@@ -68,28 +69,27 @@ void reed_loop() {
 }
 
 void drive_stepper(int c) {
-    digitalWrite(stepper_driver_pins.pin_1, pole1[c]);
-    digitalWrite(stepper_driver_pins.pin_2, pole2[c]);
-    digitalWrite(stepper_driver_pins.pin_3, pole3[c]);
-    digitalWrite(stepper_driver_pins.pin_4, pole4[c]);
+}
+
+
+void drive_stop() {
+    stepper.stop();
+    stepper.move(0);
+    stepper.setSpeed(0);
+}
+
+void drive_go_down() {
+    stepper.move(STEPS_TO_SIDE);
+    stepper.setSpeed(1000);
+}
+
+void drive_go_up() {
+    stepper.move(-(STEPS_TO_SIDE + 1000));
+    stepper.setSpeed(1000);
 }
 
 void driver_loop() {
-    if (dir_status == RotationDirection::CCW) {
-        pole_step++;
-        drive_stepper(pole_step);
-    } else if (dir_status == RotationDirection::CW) {
-        pole_step--;
-        drive_stepper(pole_step);
-    } else {
-        drive_stepper(8);
-    }
-    if (pole_step > 7) {
-        pole_step = 0;
-    }
-    if (pole_step < 0) {
-        pole_step = 7;
-    }
+    stepper.runSpeedToPosition();
 }
 
 void motorControl(const String ccw_status, const String cw_status) {
